@@ -1,6 +1,6 @@
 
 from my_project.dao import movie_dao
-
+from my_project.dao.movie_dao import movie_dao_get_movies_with_facts
 
 class MovieNotFoundException(Exception):
     pass
@@ -11,17 +11,19 @@ class MovieExistsException(Exception):
 
 
 def create_new_movie(db, movie_schema):
-    existing_movie = movie_dao.get_movie_by_release_year(
+    existing_movie = movie_dao.get_movie_by_title_and_year( 
         db,
         movie_schema.title,
         movie_schema.release_year
     )
-
+    
     if existing_movie:
-        raise MovieExistsException("Movie exists")
-
-    return movie_dao.create_movie(db, movie_schema)
-
+        raise MovieExistsException("Movie with this title and release year already exists")
+    new_movie = movie_dao.create_movie(db, movie_schema)
+    if new_movie is None:
+        raise Exception("Failed to create movie in database.") 
+        
+    return new_movie
 
 def get_movie_by_id(db, movie_id):
     db_movie = movie_dao.get_movie_by_id(db, movie_id)
@@ -59,3 +61,6 @@ def get_movie_actors_service(db, movie_id):
 def get_movie_director_service(db, movie_id):
     db_director = movie_dao.find_director_by_movie_id(db, movie_id)
     return db_director
+
+def get_movies_with_facts(db, skip=0, limit=100): 
+    return movie_dao_get_movies_with_facts(db, skip, limit)

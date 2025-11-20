@@ -1,5 +1,3 @@
-
-
 from sqlalchemy import select
 from my_project.domain.models import Actor
 
@@ -9,8 +7,15 @@ def get_actor(db, actor_id: int):
     return db.scalars(query).first()
 
 
-def get_actor_by_name(db, name: str):
-    query = select(Actor).where(Actor.name == name)
+def get_actor_by_name(db, name: str, last_name: str, birth_date: int, nationality: str, bio: str, imdb_code: int):
+    query = select(Actor).where(
+        Actor.name == name,
+        Actor.last_name == last_name,
+        Actor.birth_date == birth_date,
+        Actor.nationality == nationality,
+        Actor.bio == bio,
+        Actor.imdb_code == imdb_code
+    )
     return db.scalars(query).first()
 
 
@@ -43,3 +48,8 @@ def update_actor(db, db_actor, actor_update):
 def delete_actor(db, db_actor):
     db.delete(db_actor)
     db.commit()
+
+
+def get_movies_by_actor(db, actor_id: int):
+    actor = get_actor(db, actor_id)
+    return actor.movies if actor else None

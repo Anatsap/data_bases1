@@ -1,14 +1,14 @@
-
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload
-from my_project.domain.models import Movie, Director
+from sqlalchemy.orm import joinedload, Session, selectinload
+from my_project.domain.models import Movie
 
 
-def get_movie_by_id(db, movie_id: int): 
+def get_movie_by_id(db, movie_id: int):
     query = select(Movie).where(Movie.movie_id == movie_id)
     return db.scalars(query).first()
 
-def get_movie_by_release_year(db, title: str, release_year: int):
+
+def get_movie_by_title_and_year(db, title: str, release_year: int):
     query = select(Movie).where(
         Movie.title == title,
         Movie.release_year == release_year
@@ -21,19 +21,10 @@ def get_all_movies(db, skip=0, limit=100):
     return db.scalars(query).all()
 
 
-def get_movie_with_actors(db, movie_id: int):
-    query = (
-        select(Movie)
-        .options(joinedload(Movie.actors))
-        .where(Movie.movie_id == movie_id)
-    )
-    return db.scalars(query).first()
 
-
-def create_movie(db, movie_schema):
+def create_movie(db: Session, movie_schema):
     movie_data = movie_schema.model_dump()
     db_movie = Movie(**movie_data)
-
     db.add(db_movie)
     db.commit()
     db.refresh(db_movie)
@@ -55,9 +46,17 @@ def delete_movie(db, db_movie):
     db.delete(db_movie)
     db.commit()
 
-def find_director_by_movie_id(db, movie_id: int):
-    movie = get_movie_by_id(db, movie_id) 
-    if movie and movie.director_id:
-        director = db.scalars(select(Director).where(Director.director_id == movie.director_id)).first()
-        return director
-    return None
+def get_actors_by_movie(db, movie_id: int):
+    movie = get_movie_by_id(db, movie_id)
+    return movie.actors if movie else None
+
+def get_directors_by_movie(db, movie_id: int):
+    movie = get_movie_by_id(db, movie_id)
+    return movie.directors if movie else None
+
+
+def movie_dao_get_movies_with_facts(db, skip=0, limit=100):
+    query = select(Movie).offset(skip).limit(limit).options(
+        selectinload(Movie.movie_facts)
+    )
+    return db.scalars(query).all()
