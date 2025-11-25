@@ -198,7 +198,7 @@ def get_movies_facts_grouped_endpoint(db: Session):
             facts_list = [
                 {   
                     "id": f.fact_id,        
-                    "title": f.fact_text
+                    "fact_text": f.fact_text
                 }
                 for f in m.movie_facts
             ]
