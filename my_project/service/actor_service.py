@@ -13,7 +13,14 @@ class ActorAlreadyExistsException(Exception):
 
 
 def create_new_actor(db: Session, actor_schema):
-    existing_actor = actor_dao.get_actor_by_name(db, actor_schema.name)
+    existing_actor = actor_dao.get_actor_by_name(
+        db,
+        actor_schema.last_name,
+        actor_schema.birth_date,
+        actor_schema.nationality,
+        actor_schema.bio,
+        actor_schema.imdb_code
+    )
     if existing_actor:
         raise ActorAlreadyExistsException("Actor already exists")
     

@@ -70,7 +70,6 @@ class MovieDirector(Base):
     movie = relationship("Movie", back_populates="movie_directors")
     director = relationship("Director", back_populates="movie_directors")
 
-# У файлі, де визначено клас MovieFact (наприклад, my_project/domain/models.py або movie_fact.py)
 
 from sqlalchemy import Column, Integer, ForeignKey, Text, String
 from sqlalchemy.orm import relationship
